@@ -1,0 +1,11 @@
+.optionButton {
+  display: block;
+  width: 400px;
+  margin: 10px auto;
+  border: none;
+}
+
+.resultImage {
+  width: 500px;
+  height: 400px;
+}
