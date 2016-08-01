@@ -36,25 +36,29 @@ var game = {};
 var gs = $('#gameSection');
 
 function initializeGame () {
-  beginBtnHTML();
+  beginBtnHTML('Begin!');
+  btnListenerGameInit();
 }
 
-function beginBtnHTML(){
+function beginBtnHTML(h){
   var b = $('<button>');
   b.addClass("btn btn-primary btn-lg");
   b.attr('id', 'begin');
-  b.html("Begin!");
+  b.html(h);
 
-  gs.html(b);
+  gs.append(b);
 }
 
 
 function startGame(){
   var gameTemplate = {
     cq: 0, //Current Question
-    right: 0,
-    wrong: 0,
-    noAns: 0,
+    stats: {
+      right: 0,
+      wrong: 0,
+      "timed-out": 0,
+    },
+    
     over: false,
     qNum: "",
     time: 30,
@@ -65,46 +69,56 @@ function startGame(){
 
   printQ();
 
-  btnListener();
-
-  retrieveGifs();
 }
 
 function printQ(){
   gs.empty();
 
-  clearTimeout(nextQ);
+  if (typeof nextQ !== 'undefined'){
+    clearTimeout(nextQ);
+  }
 
-  timer();
+  if (game.over == true){
+    printGameOver();
+  }
 
-  game.cq++ //Increment the value of the current question tracker
+  else{
 
-  game.qNum = "q" + game.cq;
+    timer();
 
-  var q = $('<h3>');
-  q.html(knowledgeRepo[game.qNum].prompt);
+    game.cq++ //Increment the value of the current question tracker
 
-  gs.append(q);
+    game.qNum = "q" + game.cq;
+
+    var q = $('<h3>');
+    q.html(knowledgeRepo[game.qNum].prompt);
+
+    gs.append(q);
 
 
-  for (k in knowledgeRepo[game.qNum].ops){
-    var o = $('<button>');
-    o.addClass('optionButton text-center');
-    o.attr('value', k);
-    o.html(knowledgeRepo[game.qNum].ops[k]);
+    for (k in knowledgeRepo[game.qNum].ops){
+      var o = $('<button>');
+      o.addClass('optionButton text-center');
+      o.attr('value', k);
+      o.html(knowledgeRepo[game.qNum].ops[k]);
 
-    gs.append(o);
+      gs.append(o);
 
+    }
+
+    btnListener();
   }
 }
 
 function checkAns(b){
+  stopTimer();
+
   var ans = knowledgeRepo[game.qNum].correct;
 
   var msg = "";
 
   if (b== knowledgeRepo[game.qNum].correct){
-    game.right++;
+    game.stats.right++;
     msg = "You answered correctly!";
   }
 
@@ -114,14 +128,19 @@ function checkAns(b){
   }
 
   else {
-    game.wrong++;
+    game.stats.wrong++;
     msg = "Your answer is incorrect! ";
     msg += "The correct answer is " + knowledgeRepo[game.qNum].ops[ans];
   }
 
   result(msg);
 
+  checkQStatus();
+
+
   nextQ = setTimeout(printQ, 5000);
+
+
 
 }
 
@@ -160,6 +179,7 @@ function timer () {
 
 function count(){
   if (game.time < 1 ) {
+    game.stats['timed-out']++;
     checkAns(null);
   }
   else {
@@ -185,9 +205,38 @@ function retrieveGifs () {
    });
 }
 
-initializeGame();
+function checkQStatus (){
+  if (game.cq == Object.keys(knowledgeRepo).length){
+    game.over = true;
+  }
+}
 
-$(document).ready(function(){
+function printGameOver(){
+  //Print stats
+  gs.empty();
+
+  var t = $('<h2>');
+  t.html('Nitwit! Blubber! Oddment! Tweak! <br> GAME OVER');
+
+  gs.append(t);
+
+  for (s in game.stats){
+    var c = $('<p>');
+    c.html(s + ' : ' + game.stats[s]);
+
+    gs.append(c);
+
+  }
+
+  beginBtnHTML('Restart Game?');
+  btnListenerGameInit();
+
+}
+
+function btnListenerGameInit(){
   $('#begin').on('click', startGame);
-});
+}
 
+
+initializeGame();
+retrieveGifs();
