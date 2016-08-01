@@ -1,3 +1,7 @@
+.QContainer {
+  display: none;
+}
+
 .optionButton {
   display: block;
   width: 400px;

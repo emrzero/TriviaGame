@@ -3,7 +3,6 @@
 //July 2016
 
 
-
 var knowledgeRepo = {
   q1: {
     prompt: "What is the name of Hagrid's hypogriff?",
@@ -37,6 +36,7 @@ var gs = $('#gameSection');
 
 function initializeGame () {
   beginBtnHTML();
+  printAllQ();
 }
 
 function beginBtnHTML(){
@@ -58,47 +58,71 @@ function startGame(){
     over: false,
     qNum: "",
     time: 30,
-    g : {} //Empty object to hold GIF data
+    g : {}, //Empty object to hold GIF data
+    cs3: ""  //jQuery css selector string for Q divs
   }
 
   game = Object.assign({}, gameTemplate);
 
-  printQ();
+  $('#begin').remove();
 
-  btnListener();
-
-  retrieveGifs();
+  showQ();
 }
 
-function printQ(){
-  gs.empty();
+function printAllQ(){
 
-  clearTimeout(nextQ);
+  for (k in knowledgeRepo){
 
-  timer();
+    var newDiv = $('<div>');
+    newDiv.addClass('QContainer');
+    newDiv.attr('id', k);
 
-  game.cq++ //Increment the value of the current question tracker
+    var q = $('<h3>');
+    q.html(knowledgeRepo[k].prompt);
+    newDiv.append(q);
 
-  game.qNum = "q" + game.cq;
+      //Nested loop
+      for (ao in knowledgeRepo[k].ops){
+        var o = $('<button>');
+        o.addClass('optionButton text-center');
+        o.attr('value', k);
+        o.html(knowledgeRepo[k].ops[ao]);
 
-  var q = $('<h3>');
-  q.html(knowledgeRepo[game.qNum].prompt);
+        newDiv.append(o);
+      }//End nested loop
 
-  gs.append(q);
-
-
-  for (k in knowledgeRepo[game.qNum].ops){
-    var o = $('<button>');
-    o.addClass('optionButton text-center');
-    o.attr('value', k);
-    o.html(knowledgeRepo[game.qNum].ops[k]);
-
-    gs.append(o);
-
+      gs.append(newDiv);
+      btnListener();
   }
 }
 
+
+function showQ(){
+  if (game.cs3.length > 0){
+    game.cs3.remove();
+  }
+  
+  qTracker();
+  checkQStatus();
+  game.cs3 = $("#" + game.qNum);
+  game.cs3.css('display', 'block');
+
+  if (typeof nextQ !== "undefined"){
+    window.clearTimeout(nextQ);
+  }
+  timer();
+}
+
+function qTracker () {
+    game.cq++ //Increment the value of the current question tracker
+
+    game.qNum = "q" + game.cq;
+}
+
 function checkAns(b){
+  stopTimer();
+  $('#timer').remove();
+
   var ans = knowledgeRepo[game.qNum].correct;
 
   var msg = "";
@@ -121,30 +145,31 @@ function checkAns(b){
 
   result(msg);
 
-  nextQ = setTimeout(printQ, 5000);
+  nextQ = setTimeout(showQ, 5000);
 
 }
 
 function btnListener(){  
   $('.optionButton').on('click', function(){
     optionClicked = $(this).attr('value');
-    stopTimer();
+    // stopTimer();
     checkAns(optionClicked);
   });
 }
 
 
 function result(m){
+
   var p = $('<p>');
   p.html(m);
 
-  gs.html(p);
+  game.cs3.html(p);
 
   var im = $('<img>');
   im.addClass('resultImage');
   im.attr('src', knowledgeRepo[game.qNum].i);
 
-  gs.append(im);
+  game.cs3.append(im);
 }
 
 
@@ -185,7 +210,15 @@ function retrieveGifs () {
    });
 }
 
+function checkQStatus (){
+  if (game.cq > Object.keys(knowledgeRepo).length){
+    game.over = true;
+    throw new Error("No more questions");
+  }
+}
+
 initializeGame();
+retrieveGifs();
 
 $(document).ready(function(){
   $('#begin').on('click', startGame);
