@@ -15,12 +15,24 @@ var knowledgeRepo = {
       a4: "Fang"
     },
     i: "assets/images/buckbeak.jpg"
+  },
+
+  q2: {
+    prompt: "Who is Harry Potter's archenemy?",
+    correct: "a4",
+    ops: {
+      a1: "McGonagall",
+      a2: "Draco Malfoy",
+      a3: "Snape",
+      a4: "Voldemort"
+    },
+    i: "assets/images/buckbeak.jpg"
   }
 };
 
 var game = {};
 
-//Variable "gs" is used the jQuery selector for writing HTML output
+//Variable "gs" is the jQuery selector for HTML output; USED EXTENSIVELY
 var gs = $('#gameSection');
 
 function initializeGame () {
@@ -44,7 +56,9 @@ function startGame(){
     wrong: 0,
     noAns: 0,
     over: false,
-    qNum: ""
+    qNum: "",
+    time: 30,
+    g : {} //Empty object to hold GIF data
   }
 
   game = Object.assign({}, gameTemplate);
@@ -52,9 +66,17 @@ function startGame(){
   printQ();
 
   btnListener();
+
+  retrieveGifs();
 }
 
 function printQ(){
+  gs.empty();
+
+  clearTimeout(nextQ);
+
+  timer();
+
   game.cq++ //Increment the value of the current question tracker
 
   game.qNum = "q" + game.cq;
@@ -62,7 +84,7 @@ function printQ(){
   var q = $('<h3>');
   q.html(knowledgeRepo[game.qNum].prompt);
 
-  gs.html(q);
+  gs.append(q);
 
 
   for (k in knowledgeRepo[game.qNum].ops){
@@ -78,13 +100,17 @@ function printQ(){
 
 function checkAns(b){
   var ans = knowledgeRepo[game.qNum].correct;
-  console.log(ans);
 
   var msg = "";
-  
+
   if (b== knowledgeRepo[game.qNum].correct){
     game.right++;
     msg = "You answered correctly!";
+  }
+
+  else if (b == null){
+    msg = "Time is up!";
+    msg += "The correct answer is " + knowledgeRepo[game.qNum].ops[ans];
   }
 
   else {
@@ -95,11 +121,14 @@ function checkAns(b){
 
   result(msg);
 
+  nextQ = setTimeout(printQ, 5000);
+
 }
 
 function btnListener(){  
   $('.optionButton').on('click', function(){
     optionClicked = $(this).attr('value');
+    stopTimer();
     checkAns(optionClicked);
   });
 }
@@ -118,6 +147,43 @@ function result(m){
   gs.append(im);
 }
 
+
+function timer () {
+  var t = $('<h2>');
+  t.attr('id', 'timer');
+  t.html(game.time);
+
+  gs.prepend(t);
+  counter = setInterval(count, 1000);
+  
+}
+
+function count(){
+  if (game.time < 1 ) {
+    checkAns(null);
+  }
+  else {
+    game.time--;
+    $('#timer').text(game.time);
+  }
+}
+
+function stopTimer() {
+  clearInterval(counter);
+  game.time = 30;
+
+}
+
+function retrieveGifs () {
+  var queryURL = "http://api.giphy.com/v1/gifs/search?q=harry+potter&api_key=dc6zaTOxFJmzC&limit=10"
+
+  $.ajax({url: queryURL, method: 'GET'})
+   .done(function(response) {
+
+    game.g = Object.assign({}, response);
+
+   });
+}
 
 initializeGame();
 
