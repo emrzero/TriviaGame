@@ -2,53 +2,107 @@
 //by Eliot Reyes
 //July 2016
 
-knowledgeRepo = {};
-
-function kr (){
-  var kTemplate = {
-    q1: {
-      prompt: "What is the name of Hagrid's hypogriff?",
-      correct: "a1",
-      ops: {
-        a1: "Buckbeak",
-        a2: "Fluffy",
-        a3: "Norbert",
-        a4: "Fang"
-      },
-      i: "http://i.giphy.com/P2mw9kvE1ZGH6.gif"
+var knowledgeRepo = {
+  q1: {
+    prompt: "What is the name of Hagrid's hypogriff?",
+    correct: "a1",
+    ops: {
+      a1: "Buckbeak",
+      a2: "Fluffy",
+      a3: "Norbert",
+      a4: "Fang"
     },
+    i: "http://i.giphy.com/P2mw9kvE1ZGH6.gif"
+  },
 
-    q2: {
-      prompt: "Who is Harry Potter's archenemy?",
-      correct: "a4",
-      ops: {
-        a1: "McGonagall",
-        a2: "Draco Malfoy",
-        a3: "Snape",
-        a4: "Voldemort"
-      },
-      i: "http://i.giphy.com/ffynNaSYx2yTC.gif"
+  q2: {
+    prompt: "Who is Harry Potter's archenemy?",
+    correct: "a4",
+    ops: {
+      a1: "McGonagall",
+      a2: "Draco Malfoy",
+      a3: "Snape",
+      a4: "Voldemort"
     },
+    i: "http://i.giphy.com/ffynNaSYx2yTC.gif"
+  },
 
-    q3: {
-      prompt: "Norbert the dragon is a...",
-      correct: "a3",
-      ops: {
-        a1: "Hungarian Horntail",
-        a2: "Romanian Longhorn",
-        a3: "Norwegian Ridgeback",
-        a4: "Peruvian Vipertooth"
-      },
-      i: "http://i.giphy.com/DXxOSOgFuR6IE.gif"
+  q3: {
+    prompt: "Norbert the dragon is a...",
+    correct: "a1",
+    ops: {
+      a1: "Hungarian Horntail",
+      a2: "Romanian Longhorn",
+      a3: "Norwegian Ridgeback",
+      a4: "Peruvian Vipertooth"
     },
-  }
+    i: "http://i.giphy.com/3BA7qjsR8WLIc.gif"
+  },
 
-  knowledgeRepo = Object.assign({}, kTemplate);
+  q4: {
+    prompt: "A Quidditch match ends when this is caught",
+    correct: "a2",
+    ops: {
+      a1: "Bludger",
+      a2: "Snitch",
+      a3: "Quaffle",
+      a4: "Owl"
+    },
+    i: "http://i.giphy.com/IlVul9hwHHy9O.gif"
+  },
+
+  q5: {
+    prompt: "Harry belongs to which of the houses of Hogwarts?",
+    correct: "a4",
+    ops: {
+      a1: "Slytherin",
+      a2: "Hufflepuff",
+      a3: "Ravenclaw",
+      a4: "Gryffindor"
+    },
+    i: "http://i.giphy.com/b5Ogp12sTcalO.gif"
+  },
+
+  q6: {
+    prompt: "The head of Gryffindor house is..",
+    correct: "a3",
+    ops: {
+      a1: "Filius Flitwick",
+      a2: "Severus Snape",
+      a3: "Minerva McGonagall",
+      a4: "Pomona Sprout"
+    },
+    i: "http://i.giphy.com/2f41Z7bhKGvbG.gif"
+  },
+
+  q7: {
+    prompt: "Voldemort's henchmen are called ...",
+    correct: "a2",
+    ops: {
+      a1: "Dark Knights",
+      a2: "Death Eaters",
+      a3: "Terrible Trolls",
+      a4: "Evil Elves"
+    },
+    i: "http://i.giphy.com/cfCvkhXltHdny.gif"
+  },
+
+  q8: {
+    prompt: "The last book the Harry Potter series is ...",
+    correct: "a3",
+    ops: {
+      a1: "Harry Potter and the Philosopher's Stone",
+      a2: "Harry Potter and the Half-Blood Prince",
+      a3: "Harry Potter and the Deathly Hollows",
+      a4: "Harry Potter and the Order of the Phoenix"
+    },
+    i: "http://i.giphy.com/7rSqa74vJW0Te.gif"
+  },
+
+
 }
 
-var game = {
-  g: "test"
-};
+var game = {};
 
 
 //Variable "gs" is the jQuery selector for HTML output; USED EXTENSIVELY
@@ -69,6 +123,10 @@ function beginBtnHTML(h){
 
 }
 
+function btnListenerGameInit(){
+  $('#begin').on('click', startGame);
+}
+
 
 function startGame(){
   var gameTemplate = {
@@ -81,14 +139,15 @@ function startGame(){
     
     over: false,
     qNum: "",
-    time: 30
-    // g : {} //Empty object to hold GIF data
+    time: 30,
+    ding: new Audio("./assets/audio/ding.mp3"),
+    buzzer: new Audio("./assets/audio/buzzer.mp3")
   }
 
   
   game = Object.assign({}, gameTemplate);
   
-  retrieveGifs();
+  printQ();
 }
 
 function printQ(){
@@ -130,6 +189,45 @@ function printQ(){
   }
 }
 
+function btnListener(){  
+  $('.optionButton').on('click', function(){
+    optionClicked = $(this).attr('value');
+    stopTimer();
+    checkAns(optionClicked);
+  });
+}
+
+
+function printGameOver(){
+  //Print stats
+  gs.empty();
+
+  gs.css('background-color', 'rgba(0,0,0, 0.5)');
+  gs.css('padding', '10px 0');
+  gs.css('border-radius', '5px');
+
+  var t = $('<h3>');
+  t.html('Nitwit! Blubber! Oddment! Tweak!');
+  gs.append(t);
+
+  t=$('<h2>');
+  t.html('GAME OVER');
+  gs.append(t);
+
+  for (s in game.stats){
+    var c = $('<p>');
+    c.addClass('stats');
+    c.html(s + ' : ' + game.stats[s]);
+
+    gs.append(c);
+
+  }
+
+  beginBtnHTML('Restart Game');
+  btnListenerGameInit();
+
+}
+
 function checkAns(b){
   stopTimer();
 
@@ -139,16 +237,20 @@ function checkAns(b){
 
   if (b== knowledgeRepo[game.qNum].correct){
     game.stats.right++;
+    game.ding.play();
     msg = "CORRECT!";
   }
 
   else if (b == null){
+    game.stats['timed-out']++;
+    game.buzzer.play();
     msg = "Time is up!";
     msg += "The correct answer is " + knowledgeRepo[game.qNum].ops[ans];
   }
 
   else {
     game.stats.wrong++;
+    game.buzzer.play();
     msg = "WRONG! ";
     msg += "The correct answer is " + knowledgeRepo[game.qNum].ops[ans];
   }
@@ -157,20 +259,9 @@ function checkAns(b){
 
   checkQStatus();
 
-
-  nextQ = setTimeout(printQ, 5000);
-
-
-
+  nextQ = setTimeout(printQ, 4000);
 }
 
-function btnListener(){  
-  $('.optionButton').on('click', function(){
-    optionClicked = $(this).attr('value');
-    stopTimer();
-    checkAns(optionClicked);
-  });
-}
 
 
 function result(m){
@@ -214,53 +305,10 @@ function stopTimer() {
 
 }
 
-function retrieveGifs () {
-  var queryURL = "http://api.giphy.com/v1/gifs/search?q=harry+potter&api_key=dc6zaTOxFJmzC&limit=10"
-
-  $.ajax({url: queryURL, method: 'GET'})
-   .done(function(response) {
-
-    game.g = Object.assign({}, response.data);
-
-    kr();
-    printQ();
-
-   });
-}
-
 function checkQStatus (){
   if (game.cq == Object.keys(knowledgeRepo).length){
     game.over = true;
   }
-}
-
-function printGameOver(){
-  //Print stats
-  gs.empty();
-
-  var t = $('<h3>');
-  t.html('Nitwit! Blubber! Oddment! Tweak!');
-  gs.append(t);
-
-  t=$('<h2>');
-  t.html('GAME OVER');
-  gs.append(t);
-
-  for (s in game.stats){
-    var c = $('<p>');
-    c.html(s + ' : ' + game.stats[s]);
-
-    gs.append(c);
-
-  }
-
-  beginBtnHTML('Restart Game');
-  btnListenerGameInit();
-
-}
-
-function btnListenerGameInit(){
-  $('#begin').on('click', startGame);
 }
 
 
