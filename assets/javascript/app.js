@@ -2,35 +2,54 @@
 //by Eliot Reyes
 //July 2016
 
+knowledgeRepo = {};
 
-
-var knowledgeRepo = {
-  q1: {
-    prompt: "What is the name of Hagrid's hypogriff?",
-    correct: "a1",
-    ops: {
-      a1: "Buckbeak",
-      a2: "Fluffy",
-      a3: "Norbert",
-      a4: "Fang"
+function kr (){
+  var kTemplate = {
+    q1: {
+      prompt: "What is the name of Hagrid's hypogriff?",
+      correct: "a1",
+      ops: {
+        a1: "Buckbeak",
+        a2: "Fluffy",
+        a3: "Norbert",
+        a4: "Fang"
+      },
+      i: "http://i.giphy.com/P2mw9kvE1ZGH6.gif"
     },
-    i: "assets/images/buckbeak.jpg"
-  },
 
-  q2: {
-    prompt: "Who is Harry Potter's archenemy?",
-    correct: "a4",
-    ops: {
-      a1: "McGonagall",
-      a2: "Draco Malfoy",
-      a3: "Snape",
-      a4: "Voldemort"
+    q2: {
+      prompt: "Who is Harry Potter's archenemy?",
+      correct: "a4",
+      ops: {
+        a1: "McGonagall",
+        a2: "Draco Malfoy",
+        a3: "Snape",
+        a4: "Voldemort"
+      },
+      i: "http://i.giphy.com/ffynNaSYx2yTC.gif"
     },
-    i: "assets/images/buckbeak.jpg"
+
+    q3: {
+      prompt: "Norbert the dragon is a...",
+      correct: "a3",
+      ops: {
+        a1: "Hungarian Horntail",
+        a2: "Romanian Longhorn",
+        a3: "Norwegian Ridgeback",
+        a4: "Peruvian Vipertooth"
+      },
+      i: "http://i.giphy.com/DXxOSOgFuR6IE.gif"
+    },
   }
+
+  knowledgeRepo = Object.assign({}, kTemplate);
+}
+
+var game = {
+  g: "test"
 };
 
-var game = {};
 
 //Variable "gs" is the jQuery selector for HTML output; USED EXTENSIVELY
 var gs = $('#gameSection');
@@ -47,6 +66,7 @@ function beginBtnHTML(h){
   b.html(h);
 
   gs.append(b);
+
 }
 
 
@@ -61,14 +81,14 @@ function startGame(){
     
     over: false,
     qNum: "",
-    time: 30,
-    g : {} //Empty object to hold GIF data
+    time: 30
+    // g : {} //Empty object to hold GIF data
   }
 
+  
   game = Object.assign({}, gameTemplate);
-
-  printQ();
-
+  
+  retrieveGifs();
 }
 
 function printQ(){
@@ -119,7 +139,7 @@ function checkAns(b){
 
   if (b== knowledgeRepo[game.qNum].correct){
     game.stats.right++;
-    msg = "You answered correctly!";
+    msg = "CORRECT!";
   }
 
   else if (b == null){
@@ -129,7 +149,7 @@ function checkAns(b){
 
   else {
     game.stats.wrong++;
-    msg = "Your answer is incorrect! ";
+    msg = "WRONG! ";
     msg += "The correct answer is " + knowledgeRepo[game.qNum].ops[ans];
   }
 
@@ -200,7 +220,10 @@ function retrieveGifs () {
   $.ajax({url: queryURL, method: 'GET'})
    .done(function(response) {
 
-    game.g = Object.assign({}, response);
+    game.g = Object.assign({}, response.data);
+
+    kr();
+    printQ();
 
    });
 }
@@ -215,9 +238,12 @@ function printGameOver(){
   //Print stats
   gs.empty();
 
-  var t = $('<h2>');
-  t.html('Nitwit! Blubber! Oddment! Tweak! <br> GAME OVER');
+  var t = $('<h3>');
+  t.html('Nitwit! Blubber! Oddment! Tweak!');
+  gs.append(t);
 
+  t=$('<h2>');
+  t.html('GAME OVER');
   gs.append(t);
 
   for (s in game.stats){
@@ -228,7 +254,7 @@ function printGameOver(){
 
   }
 
-  beginBtnHTML('Restart Game?');
+  beginBtnHTML('Restart Game');
   btnListenerGameInit();
 
 }
@@ -239,4 +265,5 @@ function btnListenerGameInit(){
 
 
 initializeGame();
-retrieveGifs();
+
+

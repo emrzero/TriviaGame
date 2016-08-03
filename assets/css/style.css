@@ -1,11 +1,35 @@
+
+*{
+  font-family: 'Amatic SC', cursive;
+  font-weight: bold !important;
+  color: #fff !important ;
+}
+
+body{
+  background-image: url(../images/night-sky.jpg);
+}
+h1, h2, h3, h4, #gameSection {
+  font-size: 2em !important;
+  color: rgb(255,215,0)!important;
+}
+
+
+
 .optionButton {
   display: block;
   width: 400px;
   margin: 10px auto;
   border: none;
+  background-color: rgba(5,134,217, 0.5);
+  border-radius: 5px;
 }
 
-.resultImage {
+.optionButton:hover {
+  background-color: rgba(255,215,0, 0.5)
+}
+
+
+/*.resultImage {
   width: 500px;
   height: 400px;
-}
+}*/
