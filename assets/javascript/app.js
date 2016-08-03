@@ -120,7 +120,6 @@ function beginBtnHTML(h){
   b.html(h);
 
   gs.append(b);
-
 }
 
 function btnListenerGameInit(){
@@ -142,7 +141,8 @@ function startGame(){
     qNum: "",
     time: 30,
     ding: new Audio("./assets/audio/ding.mp3"),
-    buzzer: new Audio("./assets/audio/buzzer.mp3")
+    buzzer: new Audio("./assets/audio/buzzer.mp3"),
+    theme: new Audio("./assets/audio/hp-theme.m4a")
   }
 
   
@@ -154,6 +154,7 @@ function startGame(){
 }
 
 function printQ(){
+  game.theme.play();
   gs.empty();
 
   if (typeof nextQ !== 'undefined'){
@@ -203,6 +204,7 @@ function btnListener(){
 
 
 function printGameOver(){
+  
   //Print stats
   gs.empty();
 
