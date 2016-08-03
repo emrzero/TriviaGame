@@ -3,7 +3,7 @@
 //July 2016
 
 var knowledgeRepo = {
-  q1: {
+  q0: {
     prompt: "What is the name of Hagrid's hypogriff?",
     correct: "a1",
     ops: {
@@ -15,7 +15,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/P2mw9kvE1ZGH6.gif"
   },
 
-  q2: {
+  q1: {
     prompt: "Who is Harry Potter's archenemy?",
     correct: "a4",
     ops: {
@@ -27,7 +27,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/ffynNaSYx2yTC.gif"
   },
 
-  q3: {
+  q2: {
     prompt: "Norbert the dragon is a...",
     correct: "a1",
     ops: {
@@ -39,7 +39,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/3BA7qjsR8WLIc.gif"
   },
 
-  q4: {
+  q3: {
     prompt: "A Quidditch match ends when this is caught",
     correct: "a2",
     ops: {
@@ -51,7 +51,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/IlVul9hwHHy9O.gif"
   },
 
-  q5: {
+  q4: {
     prompt: "Harry belongs to which of the houses of Hogwarts?",
     correct: "a4",
     ops: {
@@ -63,7 +63,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/b5Ogp12sTcalO.gif"
   },
 
-  q6: {
+  q5: {
     prompt: "The head of Gryffindor house is..",
     correct: "a3",
     ops: {
@@ -75,7 +75,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/2f41Z7bhKGvbG.gif"
   },
 
-  q7: {
+  q6: {
     prompt: "Voldemort's henchmen are called ...",
     correct: "a2",
     ops: {
@@ -87,7 +87,7 @@ var knowledgeRepo = {
     i: "http://i.giphy.com/cfCvkhXltHdny.gif"
   },
 
-  q8: {
+  q7: {
     prompt: "The last book the Harry Potter series is ...",
     correct: "a3",
     ops: {
@@ -131,6 +131,7 @@ function btnListenerGameInit(){
 function startGame(){
   var gameTemplate = {
     cq: 0, //Current Question
+    qOrder: [],
     stats: {
       right: 0,
       wrong: 0,
@@ -145,8 +146,10 @@ function startGame(){
   }
 
   
+
   game = Object.assign({}, gameTemplate);
-  
+  randomizeQorder();
+
   printQ();
 }
 
@@ -165,9 +168,10 @@ function printQ(){
 
     timer();
 
+
+    game.qNum = "q" + game.qOrder[game.cq]; //Gets key for current question from randomized array
     game.cq++ //Increment the value of the current question tracker
 
-    game.qNum = "q" + game.cq;
 
     var q = $('<h3>');
     q.html(knowledgeRepo[game.qNum].prompt);
@@ -205,6 +209,7 @@ function printGameOver(){
   gs.css('background-color', 'rgba(0,0,0, 0.5)');
   gs.css('padding', '10px 0');
   gs.css('border-radius', '5px');
+  gs.css('width', '50%');
 
   var t = $('<h3>');
   t.html('Nitwit! Blubber! Oddment! Tweak!');
@@ -311,6 +316,19 @@ function checkQStatus (){
   }
 }
 
+function randomizeQorder(){
+  var qs = Object.keys(knowledgeRepo);
+  var newOrder = []
+  var randNum;
+  
+  while (newOrder.length < qs.length){
+    randNum = Math.floor(Math.random() * qs.length);
+    if (newOrder.indexOf(randNum) == -1){
+      newOrder.push(randNum);
+    }
+  }
+  game.qOrder = newOrder;
+}
 
 initializeGame();
 
